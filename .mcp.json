@@ -1,3 +1,8 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "mcpvault": {
+      "command": "npx",
+      "args": ["mcpvault", "/home/square/obsidian-notes"]
+    }
+  }
 }
