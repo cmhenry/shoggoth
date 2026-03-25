@@ -2,8 +2,8 @@
 name: daily-briefing
 description: >
   Generate a daily research briefing on weekday mornings. Reads researcher
-  context, project statuses, and recent vault activity to produce an
-  actionable summary in briefings/.
+  context, project statuses, idea pipeline, and recent vault activity to
+  produce an actionable summary in briefings/.
 ---
 
 # Daily Briefing
@@ -20,11 +20,15 @@ Produce a morning briefing that tells the researcher what matters today. Schedul
    - `mcp__mcpvault__read_multiple_notes` on each project's `PROJECT.md`
    - Read the `## Status` section of each for blockers, deadlines, and stalled items
 
-3. **Check recent vault activity:**
+3. **Scan idea pipeline:**
+   - `mcp__mcpvault__read_note` on `ideas/scratch.md` to count active ideas
+   - `mcp__mcpvault__list_directory` on `ideas/` and check frontmatter for `status: spark` (unexplored) and `status: explored` or `status: investigated` (awaiting triage)
+
+4. **Check recent vault activity:**
    - `mcp__mcpvault__get_vault_stats` for recently modified files
    - `mcp__mcpvault__search_notes` for ideas captured in the last few days
 
-4. **Write the briefing** — `mcp__mcpvault__write_note` to `briefings/YYYY-MM-DD-Weekday.md`:
+5. **Write the briefing** — `mcp__mcpvault__write_note` to `briefings/YYYY-MM-DD-Weekday.md`:
 
    ```yaml
    ---
@@ -38,8 +42,8 @@ Produce a morning briefing that tells the researcher what matters today. Schedul
    Body sections:
    - `# Daily Briefing — Weekday, Month DD, YYYY`
    - `## Most Urgent` — The single highest-priority item with specific context: what's blocked, why it matters now, what the immediate target is. Be concrete about time estimates and consequences of delay.
-   - `## Active / Needs Attention` — Each active project with current status, blockers, and a specific ask for today. Skip projects with no updates or actions.
-   - `## Recent Captures` — Ideas captured since the last briefing, with one-line summaries and whether any warrant investigation.
+   - `## Active / Needs Attention` — Each active project with current status, blockers, and a specific ask for today. Skip projects with no updates or actions. Include an **Ideas pipeline** sub-item showing: count of sparks in scratch, count of explored ideas awaiting triage. Only include this sub-item if there are ideas in either category.
+   - `## Recent Captures` — Ideas captured since the last briefing, with one-line summaries.
    - `## Suggested Focus` — A concrete recommendation for how to spend the day, given priorities and energy. Not "work on your projects" — something like "2 hours on pipeline wiring, then the diagnostic call."
 
 ## Quality bar
