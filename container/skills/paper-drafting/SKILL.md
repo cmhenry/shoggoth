@@ -41,7 +41,8 @@ Do all of this before writing a single line of LaTeX.
    - `mcp__mcpvault__read_note` on the project's `PROJECT.md` in `projects/<name>/` — current status and goals
 
 3. **Read the existing manuscript** to match style, voice, and argument flow. Never write in isolation — your draft must connect to what comes before and after.
-   - **Split layout** (has `sections/` directory): Read at minimum the sections immediately adjacent to what you're drafting.
+   - **Split layout** (has `sections/` or `draft/sections/` directory): Read at minimum the sections immediately adjacent to what you're drafting. Each section is a `.tex` file.
+   - **Split drafting layout** (`.tex` files in `draft/` without a `sections/` subdirectory): Each section is a separate `.tex` file in `draft/`. Read adjacent sections for context.
    - **Monolithic layout** (all content in `main.tex`): Read `main.tex` for full manuscript context. All sections are in this one file — edit the relevant `\section{}` directly.
 
 4. **Read refs.bib** to know which citation keys are available. The .bib file is at the project root for paper-only projects, or at `draft/refs.bib` for research-project layouts.
@@ -64,6 +65,8 @@ Do all of this before writing a single line of LaTeX.
 
 - **Be specific.** Replace "the literature suggests" with `\citet{smith2024} find that...` Replace "recent work" with specific citations. Replace "significant" with effect sizes or concrete descriptions.
 
+- **Pure LaTeX only.** All draft files must be `.tex` files with LaTeX syntax. Never use markdown headings (`#`, `##`), markdown links (`[text](url)`), markdown bold/italic (`**bold**`, `*italic*`), or markdown anchors (`{#label}`). Use `\section{}`, `\subsection{}`, `\textbf{}`, `\textit{}`, `\label{}`, `\ref{}` etc. If existing draft files use markdown syntax, convert them to LaTeX when you touch them.
+
 - **LaTeX conventions.** Write in the project's LaTeX style. For split-section projects, use `\input{}` for sections. For monolithic projects, edit within the existing file structure. Use the project's citation command style (`\cite`, `\citet`, `\citep` — check existing files).
 
 - **No preamble or wrappers.** Don't add `\begin{document}`, package imports, or section numbering unless the existing files use them. Write content that drops into the existing structure.
@@ -80,13 +83,14 @@ Do all of this before writing a single line of LaTeX.
    git checkout -b agent/<description>-$(date +%Y%m%d)
    ```
 
-3. Make changes to .tex files.
+3. Make changes to .tex files only. If existing files are `.md`, rename them to `.tex` and convert markdown syntax to LaTeX as part of your first commit.
 
 4. Commit with a descriptive message:
    ```
-   git add draft/sections/<file>.tex   # split research-project layout
+   git add draft/<file>.tex             # split drafting layout
+   git add draft/sections/<file>.tex    # split research-project layout
    git add sections/<file>.tex          # split paper-only layout
-   git add draft/main.tex              # monolithic layout
+   git add draft/main.tex               # monolithic layout
    git commit -m "draft: <what was written and why>"
    ```
 
@@ -123,4 +127,6 @@ When you find a paper in the content registry that should be cited:
 - Don't merge to main or delete branches
 - Don't rewrite sections the researcher didn't ask you to touch
 - Don't add LaTeX preamble, package imports, or `\begin{document}` wrappers
+- Don't use markdown syntax — all output must be pure LaTeX
+- Don't create `.md` files for paper content — use `.tex` exclusively
 - Don't pad prose with vague academic hedging
