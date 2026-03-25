@@ -53,7 +53,7 @@ For reading and writing research notes, ideas, project files, and literature ent
 - `search_notes` — full-text search across the vault
 - `list_directory` — list vault directory contents
 - `get_vault_stats` — vault activity and stats
-- `update_frontmatter` — modify YAML frontmatter
+- `update_frontmatter`, `get_frontmatter` — read and modify YAML frontmatter
 
 ### Content Registry (mcp__content-registry__*)
 For searching academic literature and managing the reading pipeline:
