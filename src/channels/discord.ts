@@ -250,6 +250,21 @@ export class DiscordChannel implements Channel {
       logger.debug({ jid, err }, 'Failed to send Discord typing indicator');
     }
   }
+
+  async createChannel(name: string): Promise<{ id: string; name: string }> {
+    if (!this.client) {
+      throw new Error('Discord client not initialized');
+    }
+    const guild = this.client.guilds.cache.first();
+    if (!guild) {
+      throw new Error('Bot is not in any guild');
+    }
+    const channel = await guild.channels.create({
+      name,
+      type: 0, // GuildText
+    });
+    return { id: channel.id, name: channel.name };
+  }
 }
 
 registerChannel('discord', (opts: ChannelOpts) => {

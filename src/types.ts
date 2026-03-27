@@ -96,6 +96,7 @@ export interface Channel {
   setTyping?(jid: string, isTyping: boolean): Promise<void>;
   // Optional: sync group/chat names from the platform.
   syncGroups?(force: boolean): Promise<void>;
+  createChannel?(name: string): Promise<{ id: string; name: string }>;
 }
 
 // Callback type that channels use to deliver inbound messages

@@ -5,6 +5,7 @@ import { OneCLI } from '@onecli-sh/sdk';
 
 import {
   ASSISTANT_NAME,
+  GROUPS_DIR,
   IDLE_TIMEOUT,
   ONECLI_URL,
   POLL_INTERVAL,
@@ -43,7 +44,11 @@ import {
 } from './db.js';
 import { GroupQueue } from './group-queue.js';
 import { resolveGroupFolderPath } from './group-folder.js';
-import { startIpcWatcher } from './ipc.js';
+import {
+  CreateProjectChannelRequest,
+  CreateProjectChannelResult,
+  startIpcWatcher,
+} from './ipc.js';
 import { findChannel, formatMessages, formatOutbound } from './router.js';
 import {
   restoreRemoteControl,
@@ -140,6 +145,68 @@ function registerGroup(jid: string, group: RegisteredGroup): void {
     { jid, name: group.name, folder: group.folder },
     'Group registered',
   );
+}
+
+async function createProjectChannel(
+  req: CreateProjectChannelRequest,
+): Promise<CreateProjectChannelResult> {
+  // Validate project path exists
+  if (!fs.existsSync(req.projectPath)) {
+    return {
+      success: false,
+      error: `Project path does not exist: ${req.projectPath}`,
+    };
+  }
+
+  // Find Discord channel to create through
+  const discordChannel = channels.find((ch) => ch.name === 'discord');
+  if (!discordChannel || !discordChannel.createChannel) {
+    return {
+      success: false,
+      error: 'Discord channel not available',
+    };
+  }
+
+  try {
+    // Create the Discord channel
+    const created = await discordChannel.createChannel(req.channelName);
+    const jid = `dc:${created.id}`;
+    const folder = `project_${req.projectName.replace(/[^a-zA-Z0-9-]/g, '_')}`;
+
+    // Create group folder and seed CLAUDE.md if absent
+    const groupDir = path.join(GROUPS_DIR, folder);
+    fs.mkdirSync(groupDir, { recursive: true });
+    const claudeMdPath = path.join(groupDir, 'CLAUDE.md');
+    if (!fs.existsSync(claudeMdPath)) {
+      fs.writeFileSync(
+        claudeMdPath,
+        `# Project: ${req.projectName}\n\nProject directory mounted at /workspace/project.\n`,
+      );
+    }
+
+    // Register the group
+    registerGroup(jid, {
+      name: `Shoggoth #${created.name}`,
+      folder,
+      trigger: `@${ASSISTANT_NAME}`,
+      added_at: new Date().toISOString(),
+      requiresTrigger: true,
+      projectPath: req.projectPath,
+    });
+
+    return {
+      success: true,
+      channelId: jid,
+      channelName: created.name,
+      folder,
+    };
+  } catch (err) {
+    logger.error({ err, req }, 'Failed to create project channel');
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
 }
 
 /**
@@ -676,6 +743,7 @@ async function main(): Promise<void> {
         writeTasksSnapshot(group.folder, group.isMain === true, taskRows);
       }
     },
+    createProjectChannel,
   });
   queue.setProcessMessagesFn(processGroupMessages);
   recoverPendingMessages();
