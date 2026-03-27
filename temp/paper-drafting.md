@@ -24,17 +24,6 @@ When the researcher asks to draft or extend a section that doesn't yet exist or 
 
 If the researcher says "revise," "improve," "fix," or "address reviewer comments" about an existing section, use the Paper Revision skill.
 
-## Finding the Project
-
-Paper projects are mounted at `/workspace/extra/<project-name>`. For example, `discontinuous-machines` is at `/workspace/extra/discontinuous-machines`.
-
-When the researcher names a project (e.g., "Draft the introduction for discontinuous-machines"), `cd` into the corresponding mount before doing anything else:
-```
-cd /workspace/extra/<project-name>
-```
-
-If the project name is ambiguous, list `/workspace/extra/` to see available mounts.
-
 ## Before Writing
 
 Do all of this before writing a single line of LaTeX.
@@ -42,14 +31,11 @@ Do all of this before writing a single line of LaTeX.
 1. **Read the project's CLAUDE.md** in the project root. This tells you the project structure, conventions, and analytical goals.
 
 2. **Read the vault context** for this project:
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` — who the researcher is
-   - `mcp__mcpvault__read_note` on `_meta/preferences.md` — writing style preferences
-   - `mcp__mcpvault__read_note` on the project's vault directory — current status and goals
+   - `_meta/researcher-profile.md` — who the researcher is
+   - `_meta/preferences.md` — writing style preferences
+   - The project's vault directory — current status and goals
 
-3. **Read existing manuscript sections** to match style, voice, and argument flow. Never write in isolation — your draft must connect to what comes before and after.
-   - **Split layout** (has `sections/` or `draft/sections/` directory): Read at minimum the sections immediately adjacent to what you're drafting. Each section is a `.tex` file.
-   - **Split drafting layout** (`.tex` files in `draft/` without a `sections/` subdirectory): Each section is a separate `.tex` file in `draft/`. Read adjacent sections for context.
-   - **Monolithic layout** (all content in `main.tex`): Read `main.tex` for full manuscript context. All sections are in this one file — edit the relevant `\section{}` directly.
+3. **Read existing manuscript sections** to match style, voice, and argument flow. Never write in isolation — your draft must connect to what comes before and after. Read at minimum the sections immediately adjacent to what you're drafting.
 
 4. **Read refs.bib** to know which citation keys are available. The .bib file is at the project root for paper-only projects, or at `draft/refs.bib` for research-project layouts.
 
@@ -58,7 +44,7 @@ Do all of this before writing a single line of LaTeX.
    - If a paper from the registry is important and not in refs.bib, add it to Zotero
    - Use `[CITE: author year description]` as placeholder — the real BibTeX key won't exist until Better BibTeX assigns it on the researcher's Mac
 
-6. **Read the rubrics.** Load both `_meta/global-writing-rubric.md` (global rules via `mcp__mcpvault__read_note`) and the project's `writing-rubric.md` if one exists (check the project root). These define what you'll evaluate your draft against in the self-review pass.
+6. **Read the rubrics.** Load both `_meta/writing-rubric.md` (global rules) and the project's `writing-rubric.md` if one exists. These define what you'll evaluate your draft against in the self-review pass.
 
 ## Writing Rules
 
@@ -72,9 +58,7 @@ Do all of this before writing a single line of LaTeX.
 
 - **Be specific.** Replace "the literature suggests" with `\citet{smith2024} find that...` Replace "recent work" with specific citations. Replace "significant" with effect sizes or concrete descriptions.
 
-- **Pure LaTeX only.** All draft files must be `.tex` files with LaTeX syntax. Never use markdown headings (`#`, `##`), markdown links (`[text](url)`), markdown bold/italic (`**bold**`, `*italic*`), or markdown anchors (`{#label}`). Use `\section{}`, `\subsection{}`, `\textbf{}`, `\textit{}`, `\label{}`, `\ref{}` etc. If existing draft files use markdown syntax, convert them to LaTeX when you touch them.
-
-- **LaTeX conventions.** Write in the project's LaTeX style. For split-section projects, use `\input{}` for sections. For monolithic projects, edit within the existing file structure. Use the project's citation command style (`\cite`, `\citet`, `\citep` — check existing files).
+- **LaTeX conventions.** Write in the project's LaTeX style. Use `\input{}` for sections. Use the project's citation command style (`\cite`, `\citet`, `\citep` — check existing files).
 
 - **No preamble or wrappers.** Don't add `\begin{document}`, package imports, or section numbering unless the existing files use them. Write content that drops into the existing structure.
 
@@ -84,7 +68,7 @@ After completing the first draft, perform exactly one review-then-revise cycle b
 
 ### Step 1: Review against rubrics
 
-Evaluate your draft against both the global rubric (`_meta/global-writing-rubric.md`) and the project rubric (if it exists). For each rubric criterion, produce a brief assessment:
+Evaluate your draft against both the global rubric (`_meta/writing-rubric.md`) and the project rubric (if it exists). For each rubric criterion, produce a brief assessment:
 
 - **PASS** — criterion is met
 - **FIXABLE** — criterion is not met, but you can fix it now
@@ -109,7 +93,6 @@ Write the review output to a file alongside the draft:
 ```
 sections/<section-name>.review.md     # paper-only layout
 draft/sections/<section-name>.review.md  # research-project layout
-draft/<section-name>.review.md           # split drafting layout
 ```
 
 The review file should contain:
@@ -179,8 +162,6 @@ When you find a paper in the content registry that should be cited:
 - Don't merge to main or delete branches
 - Don't rewrite sections the researcher didn't ask you to touch
 - Don't add LaTeX preamble, package imports, or `\begin{document}` wrappers
-- Don't use markdown syntax — all output must be pure LaTeX
-- Don't create `.md` files for paper content — use `.tex` exclusively
 - Don't pad prose with vague academic hedging
 - Don't run more than one self-review iteration — diminishing returns, and the researcher will revise anyway
 - Don't attempt to fix FLAG items from the self-review — those require human judgment
