@@ -28,10 +28,25 @@ NOW_MS=$(date +%s%3N)
 BUFFER=7200000
 if [ "$((EXPIRES_AT - NOW_MS))" -lt "$BUFFER" ]; then
   echo "Token expiring soon, refreshing..."
+  OLD_TOKEN=$(jq -r '.claudeAiOauth.accessToken' "$CREDS_FILE")
+
   # Claude CLI refreshes the token when it makes any API call
   # A minimal invocation that triggers refresh:
   claude -p "echo ok" --max-turns 1 2>/dev/null || true
-  echo "Token refreshed"
+
+  # Wait for credentials.json to be updated with the new token
+  for i in $(seq 1 30); do
+    NEW_CHECK=$(jq -r '.claudeAiOauth.accessToken' "$CREDS_FILE")
+    if [ "$NEW_CHECK" != "$OLD_TOKEN" ]; then
+      echo "Token refreshed after ${i}s"
+      break
+    fi
+    sleep 1
+  done
+
+  if [ "$NEW_CHECK" = "$OLD_TOKEN" ]; then
+    echo "WARNING: Token unchanged after refresh attempt — credentials.json may not have updated"
+  fi
 fi
 
 # Read the (possibly refreshed) token

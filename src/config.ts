@@ -4,11 +4,7 @@ import path from 'path';
 import { readEnvFile } from './env.js';
 
 // Read config values from .env (falls back to process.env).
-const envConfig = readEnvFile([
-  'ASSISTANT_NAME',
-  'ASSISTANT_HAS_OWN_NUMBER',
-  'ONECLI_URL',
-]);
+const envConfig = readEnvFile(['ASSISTANT_NAME', 'ASSISTANT_HAS_OWN_NUMBER']);
 
 export const ASSISTANT_NAME =
   process.env.ASSISTANT_NAME || envConfig.ASSISTANT_NAME || 'Andy';
@@ -49,8 +45,10 @@ export const CONTAINER_MAX_OUTPUT_SIZE = parseInt(
   process.env.CONTAINER_MAX_OUTPUT_SIZE || '10485760',
   10,
 ); // 10MB default
-export const ONECLI_URL =
-  process.env.ONECLI_URL || envConfig.ONECLI_URL || 'http://localhost:10254';
+export const CREDENTIAL_PROXY_PORT = parseInt(
+  process.env.CREDENTIAL_PROXY_PORT || '3001',
+  10,
+);
 export const IPC_POLL_INTERVAL = 1000;
 export const IDLE_TIMEOUT = parseInt(process.env.IDLE_TIMEOUT || '300000', 10); // 5min default — how long to keep container alive after last result
 export const SCHEDULED_TASK_IDLE_TIMEOUT = parseInt(
