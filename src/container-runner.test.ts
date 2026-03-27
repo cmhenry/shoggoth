@@ -11,6 +11,7 @@ vi.mock('./config.js', () => ({
   CONTAINER_IMAGE: 'nanoclaw-agent:latest',
   CONTAINER_MAX_OUTPUT_SIZE: 10485760,
   CONTAINER_TIMEOUT: 1800000, // 30min
+  CREDENTIAL_PROXY_PORT: 3001,
   DATA_DIR: '/tmp/nanoclaw-test-data',
   GROUPS_DIR: '/tmp/nanoclaw-test-groups',
   IDLE_TIMEOUT: 1800000, // 30min
@@ -217,5 +218,56 @@ describe('container-runner timeout behavior', () => {
     const result = await resultPromise;
     expect(result.status).toBe('success');
     expect(result.newSessionId).toBe('session-456');
+  });
+});
+
+describe('project_path volume mount', () => {
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    fakeProc = createFakeProcess();
+    // Reset spawn mock call history so we can reliably check calls[0]
+    const { spawn } = await import('child_process');
+    vi.mocked(spawn).mockClear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('mounts project_path at /workspace/project for non-main groups', async () => {
+    const projectGroup: RegisteredGroup = {
+      name: 'Project Channel',
+      folder: 'project_test',
+      trigger: '@Andy',
+      added_at: new Date().toISOString(),
+      projectPath: '/home/user/projects/test-project',
+    };
+
+    const resultPromise = runContainerAgent(
+      projectGroup,
+      {
+        prompt: 'Hello',
+        groupFolder: 'project_test',
+        chatJid: 'dc:123',
+        isMain: false,
+      },
+      () => {},
+    );
+
+    // Check spawn was called with project mount args
+    const { spawn } = await import('child_process');
+    const spawnMock = vi.mocked(spawn);
+    const args = spawnMock.mock.calls[0][1] as string[];
+    const mountArgs = args.join(' ');
+
+    expect(mountArgs).toContain('/home/user/projects/test-project');
+    expect(mountArgs).toContain('/workspace/project');
+
+    // Clean up
+    emitOutputMarker(fakeProc, { status: 'success', result: 'ok' });
+    await vi.advanceTimersByTimeAsync(10);
+    fakeProc.emit('close', 0);
+    await vi.advanceTimersByTimeAsync(10);
+    await resultPromise;
   });
 });

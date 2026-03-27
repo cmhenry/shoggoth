@@ -10,12 +10,18 @@ import {
   CONTAINER_IMAGE,
   CONTAINER_MAX_OUTPUT_SIZE,
   CONTAINER_TIMEOUT,
+  CREDENTIAL_PROXY_PORT,
   DATA_DIR,
   GROUPS_DIR,
   IDLE_TIMEOUT,
   ONECLI_URL,
   TIMEZONE,
 } from './config.js';
+
+// Host gateway hostname — how containers reach the host.
+// On Linux, Docker requires --add-host=host.docker.internal:host-gateway (see hostGatewayArgs).
+// On macOS/Windows, host.docker.internal resolves automatically.
+const CONTAINER_HOST_GATEWAY = 'host.docker.internal';
 import { resolveGroupFolderPath, resolveGroupIpcPath } from './group-folder.js';
 import { logger } from './logger.js';
 import {
@@ -187,6 +193,15 @@ function buildVolumeMounts(
         readonly: true,
       });
     }
+
+    // Project-linked groups get their project directory mounted read-write
+    if (group.projectPath) {
+      mounts.push({
+        hostPath: group.projectPath,
+        containerPath: '/workspace/project',
+        readonly: false,
+      });
+    }
   }
 
   // Per-group Claude sessions directory (isolated from other groups)
@@ -317,7 +332,7 @@ async function buildContainerArgs(
   mounts: VolumeMount[],
   containerName: string,
   input?: ContainerInput,
-): string[] {
+): Promise<string[]> {
   const args: string[] = ['run', '-i', '--rm', '--name', containerName];
 
   // Pass host timezone so container's local time matches the user's
@@ -419,7 +434,7 @@ export async function runContainerAgent(
   const mounts = buildVolumeMounts(group, input.isMain, input);
   const safeName = group.folder.replace(/[^a-zA-Z0-9-]/g, '-');
   const containerName = `nanoclaw-${safeName}-${Date.now()}`;
-  const containerArgs = buildContainerArgs(mounts, containerName, input);
+  const containerArgs = await buildContainerArgs(mounts, containerName, input);
 
   logger.debug(
     {
