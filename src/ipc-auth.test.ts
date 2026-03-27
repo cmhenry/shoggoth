@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import {
   _initTestDatabase,
@@ -675,5 +675,86 @@ describe('register_group success', () => {
     );
 
     expect(getRegisteredGroup('partial@g.us')).toBeUndefined();
+  });
+});
+
+// --- create_project_channel authorization and behavior ---
+
+describe('create_project_channel', () => {
+  it('non-main group cannot create project channels', async () => {
+    const createChannel = vi.fn();
+    const depsWithCreate = {
+      ...deps,
+      createProjectChannel: createChannel,
+    };
+
+    await processTaskIpc(
+      {
+        type: 'create_project_channel',
+        projectName: 'test-project',
+        projectPath: '/home/user/projects/test-project',
+        channelName: 'project-test-project',
+        requestedBy: 'dc:123',
+      },
+      'other-group',
+      false,
+      depsWithCreate,
+    );
+
+    expect(createChannel).not.toHaveBeenCalled();
+  });
+
+  it('main group can create project channel', async () => {
+    const createChannel = vi.fn().mockResolvedValue({
+      success: true,
+      channelId: 'dc:999',
+      channelName: 'project-test-project',
+      folder: 'project_test-project',
+    });
+    const depsWithCreate = {
+      ...deps,
+      createProjectChannel: createChannel,
+    };
+
+    await processTaskIpc(
+      {
+        type: 'create_project_channel',
+        projectName: 'test-project',
+        projectPath: '/home/user/projects/test-project',
+        channelName: 'project-test-project',
+        requestedBy: 'dc:123',
+      },
+      'whatsapp_main',
+      true,
+      depsWithCreate,
+    );
+
+    expect(createChannel).toHaveBeenCalledWith({
+      projectName: 'test-project',
+      projectPath: '/home/user/projects/test-project',
+      channelName: 'project-test-project',
+      requestedBy: 'dc:123',
+    });
+  });
+
+  it('rejects create_project_channel with missing fields', async () => {
+    const createChannel = vi.fn();
+    const depsWithCreate = {
+      ...deps,
+      createProjectChannel: createChannel,
+    };
+
+    await processTaskIpc(
+      {
+        type: 'create_project_channel',
+        projectName: 'test-project',
+        // missing projectPath, channelName, requestedBy
+      },
+      'whatsapp_main',
+      true,
+      depsWithCreate,
+    );
+
+    expect(createChannel).not.toHaveBeenCalled();
   });
 });

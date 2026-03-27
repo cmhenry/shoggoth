@@ -10,6 +10,21 @@ import { isValidGroupFolder } from './group-folder.js';
 import { logger } from './logger.js';
 import { RegisteredGroup } from './types.js';
 
+export interface CreateProjectChannelRequest {
+  projectName: string;
+  projectPath: string;
+  channelName: string;
+  requestedBy: string;
+}
+
+export interface CreateProjectChannelResult {
+  success: boolean;
+  channelId?: string;
+  channelName?: string;
+  folder?: string;
+  error?: string;
+}
+
 export interface IpcDeps {
   sendMessage: (jid: string, text: string) => Promise<void>;
   registeredGroups: () => Record<string, RegisteredGroup>;
@@ -23,6 +38,9 @@ export interface IpcDeps {
     registeredJids: Set<string>,
   ) => void;
   onTasksChanged: () => void;
+  createProjectChannel?: (
+    req: CreateProjectChannelRequest,
+  ) => Promise<CreateProjectChannelResult>;
 }
 
 let ipcWatcherRunning = false;
@@ -174,6 +192,11 @@ export async function processTaskIpc(
     trigger?: string;
     requiresTrigger?: boolean;
     containerConfig?: RegisteredGroup['containerConfig'];
+    // For create_project_channel
+    projectName?: string;
+    projectPath?: string;
+    channelName?: string;
+    requestedBy?: string;
   },
   sourceGroup: string, // Verified identity from IPC directory
   isMain: boolean, // Verified from directory path
@@ -455,6 +478,57 @@ export async function processTaskIpc(
         logger.warn(
           { data },
           'Invalid register_group request - missing required fields',
+        );
+      }
+      break;
+
+    case 'create_project_channel':
+      // Only main group can create project channels
+      if (!isMain) {
+        logger.warn(
+          { sourceGroup },
+          'Unauthorized create_project_channel attempt blocked',
+        );
+        break;
+      }
+      if (
+        data.projectName &&
+        data.projectPath &&
+        data.channelName &&
+        data.requestedBy &&
+        deps.createProjectChannel
+      ) {
+        const result = await deps.createProjectChannel({
+          projectName: data.projectName,
+          projectPath: data.projectPath,
+          channelName: data.channelName,
+          requestedBy: data.requestedBy,
+        });
+
+        // Write result back to IPC for the agent to read
+        const ipcBaseDir = path.join(DATA_DIR, 'ipc');
+        const responseDir = path.join(ipcBaseDir, sourceGroup, 'input');
+        fs.mkdirSync(responseDir, { recursive: true });
+        const responseFile = path.join(
+          responseDir,
+          `create_project_channel_result_${Date.now()}.json`,
+        );
+        fs.writeFileSync(
+          responseFile,
+          JSON.stringify(
+            { action: 'create_project_channel_result', ...result },
+            null,
+            2,
+          ),
+        );
+        logger.info(
+          { sourceGroup, result },
+          'Project channel creation result written',
+        );
+      } else {
+        logger.warn(
+          { data },
+          'Invalid create_project_channel request - missing required fields',
         );
       }
       break;
