@@ -8,6 +8,7 @@ import {
   getAllRegisteredGroups,
   getMessagesSince,
   getNewMessages,
+  getRegisteredGroup,
   getTaskById,
   setRegisteredGroup,
   storeChatMetadata,
@@ -295,6 +296,48 @@ describe('getNewMessages', () => {
     const { messages, newTimestamp } = getNewMessages([], '', 'Andy');
     expect(messages).toHaveLength(0);
     expect(newTimestamp).toBe('');
+  });
+});
+
+describe('project_path support', () => {
+  it('stores and retrieves project_path on registered group', () => {
+    setRegisteredGroup('dc:123', {
+      name: 'Project Channel',
+      folder: 'project_test',
+      trigger: '@Andy',
+      added_at: '2024-01-01T00:00:00.000Z',
+      projectPath: '/home/user/projects/test',
+    });
+
+    const group = getRegisteredGroup('dc:123');
+    expect(group).toBeDefined();
+    expect(group!.projectPath).toBe('/home/user/projects/test');
+  });
+
+  it('returns undefined projectPath when not set', () => {
+    setRegisteredGroup('dc:456', {
+      name: 'Regular Channel',
+      folder: 'discord_regular',
+      trigger: '@Andy',
+      added_at: '2024-01-01T00:00:00.000Z',
+    });
+
+    const group = getRegisteredGroup('dc:456');
+    expect(group).toBeDefined();
+    expect(group!.projectPath).toBeUndefined();
+  });
+
+  it('includes projectPath in getAllRegisteredGroups', () => {
+    setRegisteredGroup('dc:789', {
+      name: 'Project Channel',
+      folder: 'project_foo',
+      trigger: '@Andy',
+      added_at: '2024-01-01T00:00:00.000Z',
+      projectPath: '/home/user/projects/foo',
+    });
+
+    const all = getAllRegisteredGroups();
+    expect(all['dc:789'].projectPath).toBe('/home/user/projects/foo');
   });
 });
 
