@@ -5,90 +5,56 @@
 NanoClaw's credential proxy reads `CLAUDE_CODE_OAUTH_TOKEN` from `.env`
 to authenticate API calls via the Max subscription. The OAuth token is
 stored in `~/.claude/.credentials.json` by the Claude Code CLI and
-expires after ~24 hours. When it expires, the credential proxy can't
+expires after ~8 hours. When it expires, the credential proxy can't
 authenticate and all agent calls fail.
 
-The Claude Code CLI handles token refresh automatically when it runs,
-updating `~/.claude/.credentials.json`. We need a small script that:
-1. Reads the current token from `~/.claude/.credentials.json`
-2. Checks if it's expired or close to expiring
-3. If so, triggers a refresh via `claude` CLI
-4. Updates the `CLAUDE_CODE_OAUTH_TOKEN` in `.env`
-5. Optionally restarts the NanoClaw service so the proxy picks up
-   the new token
+## Refresh Mechanism
 
-## Implementation
+The script `scripts/refresh-oauth.sh` calls the Anthropic OAuth token
+endpoint directly with the refresh token — no Claude CLI dependency.
 
-Create `scripts/refresh-oauth.sh` in the shoggoth/nanoclaw directory:
+**Endpoint:** `POST https://api.anthropic.com/v1/oauth/token`
 
-```bash
-#!/bin/bash
-# Refresh OAuth token for credential proxy
-# Run via cron every 12 hours
-
-set -e
-
-CREDS_FILE="$HOME/.claude/.credentials.json"
-ENV_FILE="$HOME/shoggoth/.env"
-
-# Check if credentials file exists
-if [ ! -f "$CREDS_FILE" ]; then
-  echo "ERROR: No credentials file at $CREDS_FILE"
-  echo "Run 'claude /login' to authenticate"
-  exit 1
-fi
-
-# Check expiry (requires jq)
-EXPIRES_AT=$(jq -r '.claudeAiOauth.expiresAt' "$CREDS_FILE")
-NOW_MS=$(date +%s%3N)
-
-# Refresh if expiring within 2 hours (7200000 ms)
-BUFFER=7200000
-if [ "$((EXPIRES_AT - NOW_MS))" -lt "$BUFFER" ]; then
-  echo "Token expiring soon, refreshing..."
-  # Claude CLI refreshes the token when it makes any API call
-  # A minimal invocation that triggers refresh:
-  claude -p "echo ok" --max-turns 1 2>/dev/null || true
-  echo "Token refreshed"
-fi
-
-# Read the (possibly refreshed) token
-NEW_TOKEN=$(jq -r '.claudeAiOauth.accessToken' "$CREDS_FILE")
-
-# Update .env
-# Remove old token line and append new one
-sed -i '/^CLAUDE_CODE_OAUTH_TOKEN=/d' "$ENV_FILE"
-echo "CLAUDE_CODE_OAUTH_TOKEN=${NEW_TOKEN}" >> "$ENV_FILE"
-
-echo "OAuth token updated in .env"
-
-# Restart NanoClaw to pick up new token
-systemctl --user restart nanoclaw
-echo "NanoClaw restarted"
+**Request:**
+```json
+{
+  "grant_type": "refresh_token",
+  "refresh_token": "sk-ant-ort01-...",
+  "client_id": "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
+}
 ```
 
-Then set up a cron job:
+**Response:** Returns `access_token`, `refresh_token`, `expires_in` (28800s = 8h).
 
-```bash
-chmod +x scripts/refresh-oauth.sh
+The script:
+1. Checks `~/.claude/.credentials.json` expiry
+2. If expiring within 6 hours, calls the refresh endpoint via `curl`
+3. Updates both `credentials.json` and `.env` with new tokens
+4. On failure, sends a WhatsApp notification via IPC so the user knows
+   to run `claude /login` manually
 
-# Run every 12 hours
-crontab -e
-# Add:
-0 */12 * * * /home/square/shoggoth/scripts/refresh-oauth.sh >> /home/square/shoggoth/logs/oauth-refresh.log 2>&1
+The credential proxy re-reads `.env` on each request, so no service
+restart is needed.
+
+## Cron Schedule
+
+```
+0 */4 * * * /home/square/shoggoth/scripts/refresh-oauth.sh >> /home/square/shoggoth/logs/oauth-refresh.log 2>&1
 ```
 
-Make sure `jq` is installed:
-```bash
-sudo apt-get install -y jq
-```
+Runs every 4 hours. With 8-hour token lifetime and 6-hour refresh
+buffer, every cron run will refresh the token.
 
-Test it:
-```bash
-mkdir -p logs
-./scripts/refresh-oauth.sh
-# Should output: OAuth token updated, NanoClaw restarted
-# Verify: send a WhatsApp message, check it works
-```
+## Failure Notifications
 
-Commit: "add OAuth token auto-refresh script with cron"
+On any failure (missing credentials, bad refresh token, endpoint error),
+the script sends a WhatsApp message to the owner via the IPC mechanism
+(`data/ipc/whatsapp_main/messages/`). This requires NanoClaw to be
+running and WhatsApp to be connected.
+
+## When Manual Login Is Needed
+
+The refresh token itself can expire or be revoked. When that happens:
+1. You'll get a WhatsApp notification about the failure
+2. SSH into the server and run `claude /login`
+3. The next cron run will pick up the new tokens automatically

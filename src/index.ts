@@ -90,12 +90,10 @@ function loadState(): void {
   sessions = getAllSessions();
   registeredGroups = getAllRegisteredGroups();
 
-  // Backfill vault mount for project-linked groups that are missing it.
-  // Before this fix, createProjectChannel didn't set additionalMounts,
-  // so existing project groups had no vault access (mcpvault MCP broken).
+  // Backfill vault mount for all registered groups that are missing it.
+  // All groups need vault access so the mcpvault MCP tools work.
   const vaultPath = path.join(os.homedir(), 'obsidian-notes');
   for (const [jid, group] of Object.entries(registeredGroups)) {
-    if (!group.projectPath) continue;
     const mounts = group.containerConfig?.additionalMounts ?? [];
     const hasVault = mounts.some(
       (m) => m.containerPath === 'vault' || m.hostPath.includes('obsidian'),
@@ -111,7 +109,7 @@ function loadState(): void {
       setRegisteredGroup(jid, group);
       logger.info(
         { jid, name: group.name },
-        'Backfilled vault mount for project group',
+        'Backfilled vault mount for group',
       );
     }
   }
