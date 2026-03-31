@@ -56,6 +56,7 @@ import {
   startRemoteControl,
   stopRemoteControl,
 } from './remote-control.js';
+import { scaffoldProject } from './scaffold-project.js';
 import {
   isSenderAllowed,
   isTriggerAllowed,
@@ -756,6 +757,14 @@ async function main(): Promise<void> {
       }
     },
     createProjectChannel,
+    scaffoldProject: (req) => {
+      const existingPaths = new Set(
+        Object.values(registeredGroups)
+          .filter((g) => g.projectPath)
+          .map((g) => path.resolve(g.projectPath!)),
+      );
+      return scaffoldProject(req, createProjectChannel, existingPaths);
+    },
   });
   queue.setProcessMessagesFn(processGroupMessages);
   recoverPendingMessages();
