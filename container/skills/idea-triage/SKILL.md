@@ -53,23 +53,89 @@ Manual. Researcher says something like:
 
 4. **Update frontmatter** — `mcp__mcpvault__update_frontmatter` on ORIGIN.md: `status: upgraded`
 
-5. **Create GitHub repo** — via Bash:
+5. **Generate writing rubric** — `mcp__mcpvault__write_note` to `projects/{slug}/{slug}-writing-rubric.md`:
 
-   ```bash
-   gh repo create {slug} --private --template cmhenry/research-project-template
+   ```markdown
+   # Writing Rubric: {Project Title}
+
+   Project-specific evaluation criteria. Supplements `_meta/writing-rubric.md`
+   (global rules always apply). This file encodes the venue requirements,
+   framing decisions, and project-specific standards.
+
+   ---
+
+   ## Venue
+
+   - **Target:** [Seed from ORIGIN.md if available, else TBD]
+   - **Format:** TBD
+   - **Review criteria:** TBD
+
+   ## Audience
+
+   - **Primary reader:** TBD
+   - **Assumed knowledge:** TBD
+
+   ## Framing Constraints
+
+   - **Core argument in one sentence:** [Seed from ORIGIN.md core concept if available, else TBD]
+   - **This paper is NOT about:** TBD
+
+   ## Citation Norms
+
+   - **Must-cite papers:** [Seed from ORIGIN.md papers-to-read if available]
+
+   ## Section-Specific Notes
+
+   [To be filled as the project develops]
+
+   ## Project-Specific Anti-Patterns
+
+   [To be filled as writing begins]
+
+   ---
+
+   _Last updated: {date}_ _Update this file when the venue, framing, or argument changes._
    ```
 
-   If the template repo doesn't exist yet, create a plain private repo instead:
+   Populate sections from ORIGIN.md wherever data is available (venue targets, must-cite papers, framing). Leave as TBD where no data exists.
 
-   ```bash
-   gh repo create {slug} --private
+6. **Update registry** — `mcp__mcpvault__patch_note` on `projects/_registry.md` to append a row to the Active Projects table:
+
+   ```
+   | [{slug}]({slug}/PROJECT.md) | research | medium | {date} | New project; [one-line status from PROJECT.md] |
    ```
 
-   Then report that the template repo needs to be set up.
+   Insert the row at the end of the Active Projects table (before any section break or `## Project Clusters`).
 
-6. **Remove from scratch** — `mcp__mcpvault__patch_note` on `ideas/scratch.md` to remove the line containing the idea's backlink.
+7. **Remove from scratch** — `mcp__mcpvault__patch_note` on `ideas/scratch.md` to remove the line containing the idea's backlink.
 
-7. **Confirm** — "Upgraded [[slug]] to project. Vault: projects/{slug}/, Repo: github.com/cmhenry/{slug}"
+8. **Scaffold host resources via IPC** — Write the IPC task file:
+
+   ```bash
+   cat > /workspace/ipc/tasks/scaffold_project_$(date +%s).json << 'IPCEOF'
+   {
+     "type": "scaffold_project",
+     "projectName": "{slug}",
+     "requestedBy": "{chat-jid-of-requesting-channel}"
+   }
+   IPCEOF
+   ```
+
+   Replace `{slug}` and `{chat-jid}` with actual values.
+
+9. **Read result** — Wait a few seconds, then check for the result:
+
+   ```bash
+   ls -t /workspace/ipc/input/scaffold_project_result_*.json 2>/dev/null | head -1 | xargs cat
+   ```
+
+   Report the combined result to the user:
+
+   **Full success:** "Upgraded {slug} to project. Vault: projects/{slug}/, Repo: github.com/cmhenry/{slug}, Discord: #{slug}"
+
+   **Partial success:** Report what succeeded and what failed. Vault operations always succeed (they ran first). Note that re-running the scaffold IPC is safe (idempotent).
+
+   **Failure:** Report the error. Note that vault operations completed successfully.
 
 ## What not to do
 
