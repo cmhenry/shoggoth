@@ -17,6 +17,8 @@ export const SCHEDULER_POLL_INTERVAL = 60000;
 // Absolute paths needed for container mounts
 const PROJECT_ROOT = process.cwd();
 const HOME_DIR = process.env.HOME || os.homedir();
+export const PROJECTS_ROOT = path.join(HOME_DIR, 'projects');
+export const GITHUB_OWNER = 'cmhenry';
 
 // Mount security: allowlist stored OUTSIDE project root, never mounted into containers
 export const MOUNT_ALLOWLIST_PATH = path.join(
