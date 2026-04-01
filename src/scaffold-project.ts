@@ -74,7 +74,9 @@ type CreateProjectChannelFn = (req: {
  */
 function sanitizeTemplateRepo(template: string): string {
   // Strip owner if present (e.g., "evil-org/my-template" → "my-template")
-  const repoName = template.includes('/') ? template.split('/').pop()! : template;
+  const repoName = template.includes('/')
+    ? template.split('/').pop()!
+    : template;
   return `${GITHUB_OWNER}/${repoName}`;
 }
 
@@ -143,14 +145,7 @@ export async function scaffoldProject(
         );
         execFileSync(
           'gh',
-          [
-            'repo',
-            'create',
-            repoFullName,
-            '--private',
-            '--template',
-            template,
-          ],
+          ['repo', 'create', repoFullName, '--private', '--template', template],
           { stdio: 'pipe', timeout: 30000 },
         );
         logger.info({ repoFullName, template }, 'GitHub repo created');
@@ -195,7 +190,8 @@ export async function scaffoldProject(
         return {
           ...result,
           success: false,
-          error: 'Discord channel creation not available (createProjectChannel not provided)',
+          error:
+            'Discord channel creation not available (createProjectChannel not provided)',
         };
       }
 

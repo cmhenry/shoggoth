@@ -574,10 +574,7 @@ export async function processTaskIpc(
             2,
           ),
         );
-        logger.info(
-          { sourceGroup, result },
-          'Project scaffold result written',
-        );
+        logger.info({ sourceGroup, result }, 'Project scaffold result written');
       } else {
         logger.warn(
           { data },
