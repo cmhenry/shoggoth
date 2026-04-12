@@ -213,6 +213,32 @@ export class WhatsAppChannel implements Channel {
             // Skip protocol messages with no text content (encryption keys, read receipts, etc.)
             if (!content) continue;
 
+            // Extract reply context from contextInfo (present on replies)
+            const contextInfo =
+              normalized.extendedTextMessage?.contextInfo ||
+              normalized.imageMessage?.contextInfo ||
+              normalized.videoMessage?.contextInfo;
+            let replyMessageId: string | undefined;
+            let replyContent: string | undefined;
+            let replySenderName: string | undefined;
+            if (contextInfo?.stanzaId) {
+              replyMessageId = contextInfo.stanzaId;
+              replySenderName = contextInfo.participant
+                ? contextInfo.participant.split('@')[0]
+                : undefined;
+              const quoted = contextInfo.quotedMessage;
+              if (quoted) {
+                replyContent =
+                  (
+                    quoted.conversation ||
+                    quoted.extendedTextMessage?.text ||
+                    quoted.imageMessage?.caption ||
+                    quoted.videoMessage?.caption ||
+                    ''
+                  ).slice(0, 200) || undefined;
+              }
+            }
+
             const sender = msg.key.participant || msg.key.remoteJid || '';
             const senderName = msg.pushName || sender.split('@')[0];
 
@@ -234,6 +260,9 @@ export class WhatsAppChannel implements Channel {
               timestamp,
               is_from_me: fromMe,
               is_bot_message: isBotMessage,
+              reply_to_message_id: replyMessageId,
+              reply_to_message_content: replyContent,
+              reply_to_sender_name: replySenderName,
             });
           }
         } catch (err) {

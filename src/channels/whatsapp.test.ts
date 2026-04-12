@@ -934,6 +934,119 @@ describe('WhatsAppChannel', () => {
     });
   });
 
+  // --- Reply context ---
+
+  describe('reply context', () => {
+    it('populates reply_to fields from contextInfo', async () => {
+      const opts = createTestOpts();
+      const channel = new WhatsAppChannel(opts);
+      await connectChannel(channel);
+
+      await triggerMessages([
+        {
+          key: {
+            id: 'msg_reply_001',
+            remoteJid: 'registered@g.us',
+            participant: '5511999990000@s.whatsapp.net',
+            fromMe: false,
+          },
+          pushName: 'Alice',
+          messageTimestamp: 1700000000,
+          message: {
+            extendedTextMessage: {
+              text: 'I agree with this',
+              contextInfo: {
+                stanzaId: 'original_msg_123',
+                participant: '5511888880000@s.whatsapp.net',
+                quotedMessage: {
+                  conversation: 'The original message text',
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      expect(opts.onMessage).toHaveBeenCalledWith(
+        'registered@g.us',
+        expect.objectContaining({
+          content: 'I agree with this',
+          reply_to_message_id: 'original_msg_123',
+          reply_to_sender_name: '5511888880000',
+          reply_to_message_content: 'The original message text',
+        }),
+      );
+    });
+
+    it('delivers message without reply fields when no contextInfo', async () => {
+      const opts = createTestOpts();
+      const channel = new WhatsAppChannel(opts);
+      await connectChannel(channel);
+
+      await triggerMessages([
+        {
+          key: {
+            id: 'msg_normal_001',
+            remoteJid: 'registered@g.us',
+            participant: '5511999990000@s.whatsapp.net',
+            fromMe: false,
+          },
+          pushName: 'Alice',
+          messageTimestamp: 1700000000,
+          message: {
+            conversation: 'Just a normal message',
+          },
+        },
+      ]);
+
+      const call = vi.mocked(opts.onMessage).mock.calls[0][1];
+      expect(call.reply_to_message_id).toBeUndefined();
+      expect(call.reply_to_sender_name).toBeUndefined();
+      expect(call.reply_to_message_content).toBeUndefined();
+    });
+
+    it('handles contextInfo with extendedTextMessage in quoted message', async () => {
+      const opts = createTestOpts();
+      const channel = new WhatsAppChannel(opts);
+      await connectChannel(channel);
+
+      await triggerMessages([
+        {
+          key: {
+            id: 'msg_reply_002',
+            remoteJid: 'registered@g.us',
+            participant: '5511999990000@s.whatsapp.net',
+            fromMe: false,
+          },
+          pushName: 'Alice',
+          messageTimestamp: 1700000000,
+          message: {
+            extendedTextMessage: {
+              text: 'Replying here',
+              contextInfo: {
+                stanzaId: 'orig_456',
+                participant: '5511777770000@s.whatsapp.net',
+                quotedMessage: {
+                  extendedTextMessage: {
+                    text: 'Quoted extended text',
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      expect(opts.onMessage).toHaveBeenCalledWith(
+        'registered@g.us',
+        expect.objectContaining({
+          reply_to_message_id: 'orig_456',
+          reply_to_message_content: 'Quoted extended text',
+        }),
+      );
+    });
+  });
+
   // --- Channel properties ---
 
   describe('channel properties', () => {
