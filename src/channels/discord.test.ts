@@ -166,6 +166,7 @@ function createMessage(overrides: {
       name: overrides.channelName ?? 'general',
       messages: {
         fetch: vi.fn().mockResolvedValue({
+          content: 'Original message text',
           author: { username: 'Bob', displayName: 'Bob' },
           member: { displayName: 'Bob' },
         }),
@@ -608,7 +609,7 @@ describe('DiscordChannel', () => {
   // --- Reply context ---
 
   describe('reply context', () => {
-    it('includes reply author in content', async () => {
+    it('populates reply_to fields from referenced message', async () => {
       const opts = createTestOpts();
       const channel = new DiscordChannel('test-token', opts);
       await channel.connect();
@@ -623,9 +624,47 @@ describe('DiscordChannel', () => {
       expect(opts.onMessage).toHaveBeenCalledWith(
         'dc:1234567890123456',
         expect.objectContaining({
-          content: '[Reply to Bob] I agree with that',
+          content: 'I agree with that',
+          reply_to_message_id: 'original_msg_id',
+          reply_to_sender_name: 'Bob',
+          reply_to_message_content: 'Original message text',
         }),
       );
+    });
+
+    it('delivers message without reply fields when no reference', async () => {
+      const opts = createTestOpts();
+      const channel = new DiscordChannel('test-token', opts);
+      await channel.connect();
+
+      const msg = createMessage({
+        content: 'Just a normal message',
+        guildName: 'Server',
+      });
+      await triggerMessage(msg);
+
+      const call = (opts.onMessage as ReturnType<typeof vi.fn>).mock.calls[0][1];
+      expect(call.reply_to_message_id).toBeUndefined();
+      expect(call.reply_to_sender_name).toBeUndefined();
+      expect(call.reply_to_message_content).toBeUndefined();
+    });
+
+    it('delivers message without reply fields when fetch fails', async () => {
+      const opts = createTestOpts();
+      const channel = new DiscordChannel('test-token', opts);
+      await channel.connect();
+
+      const msg = createMessage({
+        content: 'Replying to deleted',
+        reference: { messageId: 'deleted_msg_id' },
+        guildName: 'Server',
+      });
+      msg.channel.messages.fetch = vi.fn().mockRejectedValue(new Error('Unknown Message'));
+      await triggerMessage(msg);
+
+      const call = (opts.onMessage as ReturnType<typeof vi.fn>).mock.calls[0][1];
+      expect(call.content).toBe('Replying to deleted');
+      expect(call.reply_to_message_id).toBeUndefined();
     });
   });
 

@@ -115,17 +115,21 @@ export class DiscordChannel implements Channel {
         }
       }
 
-      // Handle reply context — include who the user is replying to
+      // Handle reply context — extract structured reply fields
+      let replyMessageId: string | undefined;
+      let replyContent: string | undefined;
+      let replySenderName: string | undefined;
       if (message.reference?.messageId) {
         try {
           const repliedTo = await message.channel.messages.fetch(
             message.reference.messageId,
           );
-          const replyAuthor =
+          replyMessageId = message.reference.messageId;
+          replySenderName =
             repliedTo.member?.displayName ||
             repliedTo.author.displayName ||
             repliedTo.author.username;
-          content = `[Reply to ${replyAuthor}] ${content}`;
+          replyContent = repliedTo.content?.slice(0, 200) || undefined;
         } catch {
           // Referenced message may have been deleted
         }
@@ -160,6 +164,9 @@ export class DiscordChannel implements Channel {
         content,
         timestamp,
         is_from_me: false,
+        reply_to_message_id: replyMessageId,
+        reply_to_message_content: replyContent,
+        reply_to_sender_name: replySenderName,
       });
 
       logger.info(
