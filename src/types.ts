@@ -44,6 +44,7 @@ export interface RegisteredGroup {
   requiresTrigger?: boolean; // Default: true for groups, false for solo chats
   isMain?: boolean; // True for the main control group (no trigger, elevated privileges)
   projectPath?: string; // Absolute path to linked project directory
+  dispatch?: "container" | "rp_service"; // default: "container"
 }
 
 export interface NewMessage {
