@@ -103,12 +103,18 @@ export async function dispatchToRpService(
     } else {
       const errBody = await res.text();
       logger.error(`RP service error: ${res.status} ${errBody}`);
-      await channel.sendMessage(chatJid, 'Research Partner is currently unavailable.');
+      await channel.sendMessage(
+        chatJid,
+        'Research Partner is currently unavailable.',
+      );
       return false;
     }
   } catch (err: any) {
     logger.error(`RP service unreachable: ${err.message}`);
-    await channel.sendMessage(chatJid, 'Research Partner service is not running.');
+    await channel.sendMessage(
+      chatJid,
+      'Research Partner service is not running.',
+    );
     return false;
   }
 }

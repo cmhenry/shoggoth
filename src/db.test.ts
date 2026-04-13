@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
   _initTestDatabase,
+  _getTestDatabase,
   createTask,
   deleteTask,
   getAllChats,
@@ -565,14 +566,23 @@ describe('dispatch field support', () => {
   });
 
   it('rejects unknown dispatch values from DB (returns undefined)', () => {
-    // Register without dispatch, then read back — invalid values should map to undefined
-    setRegisteredGroup('dc:rp5', {
-      name: 'No Dispatch',
-      folder: 'discord_rp-nodispatch',
-      trigger: '@Shoggoth',
-      added_at: '2024-01-01T00:00:00.000Z',
-    });
+    // Insert directly via raw SQL to bypass TypeScript types
+    const testDb = _getTestDatabase();
+    testDb
+      .prepare(
+        `INSERT INTO registered_groups (jid, name, folder, trigger_pattern, added_at, dispatch)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        'dc:rp5',
+        'Unknown Dispatch',
+        'discord_rp-unknown',
+        '@Shoggoth',
+        '2024-01-01T00:00:00.000Z',
+        'bogus',
+      );
 
+    // Reading back should validate and return undefined for invalid dispatch
     const group = getRegisteredGroup('dc:rp5');
     expect(group).toBeDefined();
     expect(group!.dispatch).toBeUndefined();

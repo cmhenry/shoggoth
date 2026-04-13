@@ -199,6 +199,11 @@ export function _initTestDatabase(): void {
   createSchema(db);
 }
 
+/** @internal - for tests only. Get the database instance for raw SQL operations. */
+export function _getTestDatabase(): Database.Database {
+  return db;
+}
+
 /**
  * Store chat metadata only (no message content).
  * Used for all chats to enable group discovery without storing sensitive content.

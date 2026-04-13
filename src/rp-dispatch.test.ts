@@ -41,7 +41,10 @@ describe('RP service dispatch', () => {
         channel: 'dc:research-channel',
       }),
     });
-    expect(sendMessage).toHaveBeenCalledWith('dc:research-channel', 'RP says hello');
+    expect(sendMessage).toHaveBeenCalledWith(
+      'dc:research-channel',
+      'RP says hello',
+    );
   });
 
   it('sends error message when RP service returns non-OK', async () => {
@@ -92,11 +95,9 @@ describe('RP service dispatch', () => {
     const { dispatchToRpService } = await import('./index.js');
 
     const sendMessage = vi.fn();
-    const result = await dispatchToRpService(
-      undefined,
-      'dc:research-channel',
-      { sendMessage },
-    );
+    const result = await dispatchToRpService(undefined, 'dc:research-channel', {
+      sendMessage,
+    });
 
     expect(result).toBe(true);
     expect(sendMessage).not.toHaveBeenCalled();
