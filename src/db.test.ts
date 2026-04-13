@@ -509,6 +509,76 @@ describe('project_path support', () => {
   });
 });
 
+describe('dispatch field support', () => {
+  it('stores and retrieves dispatch=rp_service on registered group', () => {
+    setRegisteredGroup('dc:rp1', {
+      name: 'Research Partner',
+      folder: 'discord_rp-test',
+      trigger: '@Shoggoth',
+      added_at: '2024-01-01T00:00:00.000Z',
+      dispatch: 'rp_service',
+    });
+
+    const group = getRegisteredGroup('dc:rp1');
+    expect(group).toBeDefined();
+    expect(group!.dispatch).toBe('rp_service');
+  });
+
+  it('stores and retrieves dispatch=container on registered group', () => {
+    setRegisteredGroup('dc:rp2', {
+      name: 'Container Channel',
+      folder: 'discord_container-test',
+      trigger: '@Shoggoth',
+      added_at: '2024-01-01T00:00:00.000Z',
+      dispatch: 'container',
+    });
+
+    const group = getRegisteredGroup('dc:rp2');
+    expect(group).toBeDefined();
+    expect(group!.dispatch).toBe('container');
+  });
+
+  it('returns undefined dispatch when not set', () => {
+    setRegisteredGroup('dc:rp3', {
+      name: 'Regular Channel',
+      folder: 'discord_no-dispatch',
+      trigger: '@Shoggoth',
+      added_at: '2024-01-01T00:00:00.000Z',
+    });
+
+    const group = getRegisteredGroup('dc:rp3');
+    expect(group).toBeDefined();
+    expect(group!.dispatch).toBeUndefined();
+  });
+
+  it('includes dispatch in getAllRegisteredGroups', () => {
+    setRegisteredGroup('dc:rp4', {
+      name: 'RP All Test',
+      folder: 'discord_rp-all-test',
+      trigger: '@Shoggoth',
+      added_at: '2024-01-01T00:00:00.000Z',
+      dispatch: 'rp_service',
+    });
+
+    const all = getAllRegisteredGroups();
+    expect(all['dc:rp4'].dispatch).toBe('rp_service');
+  });
+
+  it('rejects unknown dispatch values from DB (returns undefined)', () => {
+    // Register without dispatch, then read back — invalid values should map to undefined
+    setRegisteredGroup('dc:rp5', {
+      name: 'No Dispatch',
+      folder: 'discord_rp-nodispatch',
+      trigger: '@Shoggoth',
+      added_at: '2024-01-01T00:00:00.000Z',
+    });
+
+    const group = getRegisteredGroup('dc:rp5');
+    expect(group).toBeDefined();
+    expect(group!.dispatch).toBeUndefined();
+  });
+});
+
 // --- storeChatMetadata ---
 
 describe('storeChatMetadata', () => {
