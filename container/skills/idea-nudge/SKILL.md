@@ -15,7 +15,7 @@ Scheduled task, every 3 days. Uses Sonnet to keep costs low. Do not run expensiv
 
 ## Process
 
-1. **Scan idea notes** — `mcp__mcpvault__list_directory` on `ideas/` to get all idea files (skip `scratch.md`, `archive/`, and any non-markdown files).
+1. **Scan idea notes** — `mcp__mcpvault__list_directory` on `feeds/inbox/` to get all idea files (skip `scratch.md`, `archive/`, and any non-markdown files).
 
 2. **Read frontmatter** — `mcp__mcpvault__get_frontmatter` on each idea file. Categorize:
    - **Unexplored:** `status: spark`

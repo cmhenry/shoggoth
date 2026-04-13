@@ -22,8 +22,7 @@ Never run without explicit confirmation.
 ## Process
 
 1. **Read context:**
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` for methods, interests, career stage
-   - `mcp__mcpvault__read_note` on `_meta/top-of-mind.md` for current priorities
+   - `mcp__mcpvault__read_note` on `reference/researcher-profile.md` for methods, interests, career stage
    - Read the idea note(s) to explore via `mcp__mcpvault__read_note`
 
 2. **Dispatch sub-agents** via agent teams (`TeamCreate`):
@@ -32,7 +31,7 @@ Never run without explicit confirmation.
 
    **Methodology agent:** How would you actually study this? What data and methods are feasible given the researcher's resources (simulation platforms, available data, collaborator network)? What's the most tractable path to a contribution? Be honest about feasibility.
 
-   **Framing agent:** What's the theoretical contribution? How does this connect to the researcher's existing work and methods? Develop 2-3 possible angles, each with what it would contribute if successful. Read `_meta/researcher-profile.md` for the researcher's known expertise.
+   **Framing agent:** What's the theoretical contribution? How does this connect to the researcher's existing work and methods? Develop 2-3 possible angles, each with what it would contribute if successful. Read `reference/researcher-profile.md` for the researcher's known expertise.
 
    All three agents run in parallel.
 
@@ -56,7 +55,7 @@ Never run without explicit confirmation.
 
 When the researcher says "explore the ideas in scratch":
 
-1. Read `ideas/scratch.md` to get the list of backlinked ideas
+1. Read `feeds/inbox/scratch.md` to get the list of backlinked ideas
 2. Filter to those with `status: spark` (skip already-explored ideas)
 3. Process each idea as a separate exploration — each gets its own 3-agent swarm
 4. Cap at 2-3 ideas per invocation to manage Opus quota
