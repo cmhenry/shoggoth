@@ -12,16 +12,13 @@ Produce a prioritized non-fiction reading list by combining Zotero queue, active
 
 ## Process
 
-1. **Read researcher context:**
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md`, `_meta/top-of-mind.md`
-
-2. **Read active project statuses:**
+1. **Read active project statuses:**
    - `mcp__mcpvault__list_directory` on `projects/`
    - `mcp__mcpvault__read_multiple_notes` on each project's `PROJECT.md`
    - Extract research needs, methods being used, and topics from `## Status` sections
 
 3. **Check recent literature monitor output:**
-   - `mcp__mcpvault__search_notes` in `literature/` for recent `weekly-*.md` files
+   - `mcp__mcpvault__search_notes` in `feeds/literature/` for recent `weekly-*.md` files
    - Identify must-read and should-read papers not yet in Zotero
 
 4. **Suggest additions to Zotero:**
@@ -36,13 +33,13 @@ Produce a prioritized non-fiction reading list by combining Zotero queue, active
    - Rank items by:
      - **Project relevance** (directly supports active work — highest weight)
      - **Urgency** (time-sensitive topics, fast-moving fields)
-     - **Researcher signals** (mentioned in top-of-mind, flagged in conversation)
+     - **Researcher signals** (flagged in conversation or recent daily notes)
    - Group into tiers:
      - **Read Next** (3-5 items) — highest priority
      - **On Deck** (5-10 items) — important but not urgent
      - **Backlog** (remainder) — worth reading eventually
 
-7. **Write vault note** — `mcp__mcpvault__write_note` to `literature/reading-list.md`:
+6. **Write vault note** — `mcp__mcpvault__write_note` to `feeds/literature/reading-list.md`:
 
    ```yaml
    ---
@@ -58,7 +55,7 @@ Produce a prioritized non-fiction reading list by combining Zotero queue, active
    - `## On Deck` — items with brief relevance notes
    - `## Backlog` — titles and authors only
 
-8. **Send WhatsApp summary** — `mcp__nanoclaw__send_message`:
+7. **Send WhatsApp summary** — `mcp__nanoclaw__send_message`:
    - Top 3 "Read Next" items with why
    - Number of new additions since last run
    - Flag any items that have been in "To Read" for over 4 weeks

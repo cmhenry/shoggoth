@@ -42,12 +42,11 @@ ls /workspace/project/CLAUDE.md 2>/dev/null && echo "Project at /workspace/proje
 
 ## Before Reviewing
 
-1. **Read the rubrics.** Load `_meta/global-writing-rubric.md` (global rules via `mcp__mcpvault__read_note`) and the project's `writing-rubric.md` (if it exists — check the project root). These are your evaluation criteria.
+1. **Read the rubrics.** Load `reference/templates/global-writing-rubric.md` (global rules via `mcp__mcpvault__read_note`) and the project's `writing-rubric.md` (if it exists — check the project root). These are your evaluation criteria.
 
 2. **Read the project context:**
    - Project CLAUDE.md — what the paper argues, how it's structured
    - `mcp__mcpvault__read_note` on the project's vault directory — current goals and status
-   - `mcp__mcpvault__read_note` on `_meta/preferences.md` — the researcher's known standards
 
 3. **Read the section(s) under review** and their adjacent sections. Critique requires understanding how a section fits into the whole.
    - **Split layout** (has `sections/` or `draft/sections/` directory): Each section is a `.tex` file.
@@ -77,7 +76,7 @@ paper.critique.md                       # at project root
 # Critique: <section name>
 Date: YYYY-MM-DD
 Reviewer: Shoggoth (automated)
-Rubric: _meta/global-writing-rubric.md [+ project rubric if used]
+Rubric: reference/templates/global-writing-rubric.md [+ project rubric if used]
 
 ## Rubric Assessment
 

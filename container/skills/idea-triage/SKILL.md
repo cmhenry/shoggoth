@@ -1,7 +1,7 @@
 ---
 name: idea-triage
 description: >
-  Archive or upgrade an explored idea. Archiving moves it to ideas/archive/.
+  Archive or upgrade an explored idea. Archiving moves it to feeds/inbox/archive/.
   Upgrading creates a project folder in the vault and a private GitHub repo.
 ---
 
@@ -19,17 +19,17 @@ Manual. Researcher says something like:
 
 ## Archive path
 
-1. **Move the note** — `mcp__mcpvault__move_note` from `ideas/YYYY-MM-DD-slug.md` to `ideas/archive/YYYY-MM-DD-slug.md`
+1. **Move the note** — `mcp__mcpvault__move_note` from `feeds/inbox/YYYY-MM-DD-slug.md` to `feeds/inbox/archive/YYYY-MM-DD-slug.md`
 
 2. **Update frontmatter** — `mcp__mcpvault__update_frontmatter` on the moved note: `status: archived`
 
-3. **Remove from scratch** — `mcp__mcpvault__patch_note` on `ideas/scratch.md` to remove the line containing `[[YYYY-MM-DD-slug]]`
+3. **Remove from scratch** — `mcp__mcpvault__patch_note` on `feeds/inbox/scratch.md` to remove the line containing `[[YYYY-MM-DD-slug]]`
 
-4. **Confirm** — "Archived [[slug]]. It's in ideas/archive/ if you need it later."
+4. **Confirm** — "Archived [[slug]]. It's in feeds/inbox/archive/ if you need it later."
 
 ## Upgrade path
 
-1. **Read the idea note** — `mcp__mcpvault__read_note` on `ideas/YYYY-MM-DD-slug.md` to get the exploration findings for seeding the project.
+1. **Read the idea note** — `mcp__mcpvault__read_note` on `feeds/inbox/YYYY-MM-DD-slug.md` to get the exploration findings for seeding the project.
 
 2. **Create PROJECT.md** — `mcp__mcpvault__write_note` to `projects/{slug}/PROJECT.md`:
 
@@ -47,9 +47,9 @@ Manual. Researcher says something like:
    - `## Context` — Key findings from exploration: literature landscape, feasibility notes, methodological approach
    - `## Key Decisions` — "YYYY-MM-DD — Promoted from idea to project based on [researcher's reasoning if stated]"
 
-   The slug for the project folder drops the date prefix from the idea slug (e.g., `ideas/2026-03-25-adversarial-deliberation.md` becomes `projects/adversarial-deliberation/`).
+   The slug for the project folder drops the date prefix from the idea slug (e.g., `feeds/inbox/2026-03-25-adversarial-deliberation.md` becomes `projects/adversarial-deliberation/`).
 
-3. **Move idea note as ORIGIN.md** — `mcp__mcpvault__move_note` from `ideas/YYYY-MM-DD-slug.md` to `projects/{slug}/ORIGIN.md`
+3. **Move idea note as ORIGIN.md** — `mcp__mcpvault__move_note` from `feeds/inbox/YYYY-MM-DD-slug.md` to `projects/{slug}/ORIGIN.md`
 
 4. **Update frontmatter** — `mcp__mcpvault__update_frontmatter` on ORIGIN.md: `status: upgraded`
 
@@ -58,7 +58,7 @@ Manual. Researcher says something like:
    ```markdown
    # Writing Rubric: {Project Title}
 
-   Project-specific evaluation criteria. Supplements `_meta/writing-rubric.md`
+   Project-specific evaluation criteria. Supplements `reference/templates/global-writing-rubric.md`
    (global rules always apply). This file encodes the venue requirements,
    framing decisions, and project-specific standards.
 
@@ -99,7 +99,7 @@ Manual. Researcher says something like:
 
    Populate sections from ORIGIN.md wherever data is available (venue targets, must-cite papers, framing). Leave as TBD where no data exists.
 
-6. **Update registry** — `mcp__mcpvault__patch_note` on `projects/_registry.md` to append a row to the Active Projects table:
+6. **Update index** — `mcp__mcpvault__patch_note` on `projects/_index.md` to append a row to the Active Projects table:
 
    ```
    | [{slug}]({slug}/PROJECT.md) | research | medium | {date} | New project; [one-line status from PROJECT.md] |
@@ -107,7 +107,7 @@ Manual. Researcher says something like:
 
    Insert the row at the end of the Active Projects table (before any section break or `## Project Clusters`).
 
-7. **Remove from scratch** — `mcp__mcpvault__patch_note` on `ideas/scratch.md` to remove the line containing the idea's backlink.
+7. **Remove from scratch** — `mcp__mcpvault__patch_note` on `feeds/inbox/scratch.md` to remove the line containing the idea's backlink.
 
 8. **Scaffold host resources via IPC** — Write the IPC task file:
 

@@ -19,7 +19,7 @@ When the researcher asks about a project — "how's community-sorting going?", "
 
 2. **Search for recent context:**
    - `mcp__mcpvault__search_notes` for the project name across the vault — recent ideas, briefing mentions, literature connections
-   - Check `ideas/` for sparks connected to this project
+   - Check `feeds/inbox/` for sparks connected to this project
 
 3. **Summarize concisely:**
    - Current state (what's done, what's in progress) — from the `## Status` section

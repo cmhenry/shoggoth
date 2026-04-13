@@ -7,7 +7,7 @@ description: >
 
 # Idea Capture
 
-When the researcher shares a substantive research thought — a hypothesis, a methodological angle, a connection between literatures — capture it as a note in `ideas/` and add a backlink to the scratch.
+When the researcher shares a substantive research thought — a hypothesis, a methodological angle, a connection between literatures — capture it as a note in `feeds/inbox/` and add a backlink to the scratch.
 
 ## What counts as a substantive thought
 
@@ -15,11 +15,9 @@ A research-relevant idea, not a task, question, or casual remark. Use judgment. 
 
 ## Capture process
 
-1. **Read researcher context** — `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` and `_meta/top-of-mind.md` to understand the researcher's active interests and projects.
+1. **Check for duplicates** — `mcp__mcpvault__search_notes` in `feeds/inbox/` to see if a similar idea already exists. If it does, tell the researcher and offer to add to the existing note instead.
 
-2. **Check for duplicates** — `mcp__mcpvault__search_notes` in `ideas/` to see if a similar idea already exists. If it does, tell the researcher and offer to add to the existing note instead.
-
-3. **Write the idea note** — `mcp__mcpvault__write_note` to `ideas/YYYY-MM-DD-slug.md`:
+2. **Write the idea note** — `mcp__mcpvault__write_note` to `feeds/inbox/YYYY-MM-DD-slug.md`:
 
    Frontmatter (nothing else):
    ```yaml
@@ -33,7 +31,7 @@ A research-relevant idea, not a task, question, or casual remark. Use judgment. 
 
    Slug: lowercase, hyphen-separated, max ~60 chars, derived from the core concept.
 
-4. **Add to scratch** — `mcp__mcpvault__patch_note` on `ideas/scratch.md` to prepend (newest first) a backlinked one-liner:
+3. **Add to scratch** — `mcp__mcpvault__patch_note` on `feeds/inbox/scratch.md` to prepend (newest first) a backlinked one-liner:
 
    ```
    - [[YYYY-MM-DD-slug]] — one-sentence summary of the idea
@@ -41,7 +39,7 @@ A research-relevant idea, not a task, question, or casual remark. Use judgment. 
 
    Insert after the frontmatter closing `---`, before existing entries.
 
-5. **Confirm** — Tell the researcher: "Captured [[slug]] in scratch."
+4. **Confirm** — Tell the researcher: "Captured [[slug]] in scratch."
 
 ## Tone
 
@@ -53,5 +51,5 @@ Write like a sharp research assistant who knows the researcher's work. No filler
 - Don't add headings or template sections to the idea note
 - Don't update any registry file
 - Don't prompt for investigation or escalation — the nudge handles that
-- Don't create subdirectories inside `ideas/`
+- Don't create subdirectories inside `feeds/inbox/`
 - Don't overwrite existing notes

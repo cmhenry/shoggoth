@@ -55,7 +55,7 @@ ls /workspace/project/CLAUDE.md 2>/dev/null && echo "Project at /workspace/proje
 
 3. **Read adjacent sections.** Revisions must maintain flow with what comes before and after.
 
-4. **Read the project rubrics** (`_meta/global-writing-rubric.md` via `mcp__mcpvault__read_note` and the project's `writing-rubric.md` if it exists in the project root) to understand the evaluation criteria. The critique file's rubric assessment tells you which criteria failed.
+4. **Read the project rubrics** (`reference/templates/global-writing-rubric.md` via `mcp__mcpvault__read_note` and the project's `writing-rubric.md` if it exists in the project root) to understand the evaluation criteria. The critique file's rubric assessment tells you which criteria failed.
 
 5. **Read refs.bib** if the revision involves citations.
 

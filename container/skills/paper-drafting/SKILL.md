@@ -45,8 +45,7 @@ Do all of this before writing a single line of LaTeX.
 1. **Read the project's CLAUDE.md** in the project root. This tells you the project structure, conventions, and analytical goals.
 
 2. **Read the vault context** for this project:
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` — who the researcher is
-   - `mcp__mcpvault__read_note` on `_meta/preferences.md` — writing style preferences
+   - `mcp__mcpvault__read_note` on `reference/researcher-profile.md` — who the researcher is
    - `mcp__mcpvault__read_note` on the project's vault directory — current status and goals
 
 3. **Read existing manuscript sections** to match style, voice, and argument flow. Never write in isolation — your draft must connect to what comes before and after.
@@ -61,7 +60,7 @@ Do all of this before writing a single line of LaTeX.
    - If a paper from the registry is important and not in refs.bib, add it to Zotero
    - Use `[CITE: author year description]` as placeholder — the real BibTeX key won't exist until Better BibTeX assigns it on the researcher's Mac
 
-6. **Read the rubrics.** Load both `_meta/global-writing-rubric.md` (global rules via `mcp__mcpvault__read_note`) and the project's `writing-rubric.md` if one exists (check the project root). These define what you'll evaluate your draft against in the self-review pass.
+6. **Read the rubrics.** Load both `reference/templates/global-writing-rubric.md` (global rules via `mcp__mcpvault__read_note`) and the project's `writing-rubric.md` if one exists (check the project root). These define what you'll evaluate your draft against in the self-review pass.
 
 ## Writing Rules
 
@@ -87,7 +86,7 @@ After completing the first draft, perform exactly one review-then-revise cycle b
 
 ### Step 1: Review against rubrics
 
-Evaluate your draft against both the global rubric (`_meta/global-writing-rubric.md`) and the project rubric (if it exists). For each rubric criterion, produce a brief assessment:
+Evaluate your draft against both the global rubric (`reference/templates/global-writing-rubric.md`) and the project rubric (if it exists). For each rubric criterion, produce a brief assessment:
 
 - **PASS** — criterion is met
 - **FIXABLE** — criterion is not met, but you can fix it now

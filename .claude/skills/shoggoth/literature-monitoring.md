@@ -12,23 +12,22 @@ Scheduled weekly (Monday mornings). Searches for recent papers relevant to the r
 ## Process
 
 1. **Read researcher context:**
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` for research interests, methods, and domain keywords
-   - `mcp__mcpvault__read_note` on `_meta/top-of-mind.md` for current priorities (weight results toward active concerns)
+   - `mcp__mcpvault__list_directory` on `projects/` and `mcp__mcpvault__read_multiple_notes` on each project's `PROJECT.md` for active research topics and keywords
 
 2. **Search for recent papers:**
    - Use web search to query Semantic Scholar API and OpenAlex for papers published in the last 7-14 days
-   - Search terms derived from: researcher interests, active project topics, and top-of-mind priorities
+   - Search terms derived from: active project topics and research needs from PROJECT.md files
    - Cast a wide net (multiple queries), then filter aggressively
    - Target 15-30 candidate papers before filtering
 
 3. **Filter and tier:**
-   - **Must-Read** (2-5 papers): Directly relevant to active projects or top-of-mind priorities. The researcher would want to know about these immediately.
+   - **Must-Read** (2-5 papers): Directly relevant to active projects. The researcher would want to know about these immediately.
    - **Should-Read** (3-8 papers): Relevant to broader interests, useful methods, or adjacent fields. Worth reading within the month.
    - **Skim** (remainder): Peripherally relevant. Abstracts are enough unless something catches the researcher's eye.
 
    Filtering criteria: relevance to researcher's specific work (not just the field broadly), methodological novelty, publication venue quality, recency.
 
-4. **Write the weekly note** — `mcp__mcpvault__write_note` to `literature/weekly-YYYY-WNN.md`:
+4. **Write the weekly note** — `mcp__mcpvault__write_note` to `feeds/literature/weekly-YYYY-WNN.md`:
 
    ```yaml
    ---
@@ -44,7 +43,7 @@ Scheduled weekly (Monday mornings). Searches for recent papers relevant to the r
    - For each tier, list papers with: **Title** (linked if URL available), Authors (first author et al.), Venue/preprint, and a 1-2 sentence note on why it's relevant *to this researcher specifically*.
    - End with `## Connections to Active Work` — brief notes on how any must-read papers relate to current projects.
 
-5. **Update the reading queue** — `mcp__mcpvault__read_note` on `literature/queue.md`, then append must-read papers via `mcp__mcpvault__write_note` (append mode) or `mcp__mcpvault__patch_note`.
+5. **Update the reading queue** — `mcp__mcpvault__read_note` on `feeds/literature/queue.md`, then append must-read papers via `mcp__mcpvault__write_note` (append mode) or `mcp__mcpvault__patch_note`.
 
 6. **Add must-read papers to Zotero** — for each Must-Read paper:
    - Check if already in Zotero via `zotero-cli search "<title>"` (avoid duplicates)
@@ -64,5 +63,5 @@ Scheduled weekly (Monday mornings). Searches for recent papers relevant to the r
 
 - Don't include papers older than 30 days unless they were missed in prior weeks
 - Don't pad the list with tangentially related papers to look comprehensive
-- Don't include papers the researcher has already cited (check `literature/notes/` for existing entries)
+- Don't include papers the researcher has already cited (check `feeds/literature/notes/` for existing entries)
 - Don't generate the note if no relevant papers were found — just report "quiet week"
