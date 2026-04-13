@@ -12,15 +12,14 @@ A thorough exploration of a research idea, combining literature search, conceptu
 
 ## Prerequisites
 
-- An idea to investigate (usually from an `ideas/` note or a conversation)
+- An idea to investigate (usually from an `feeds/inbox/` note or a conversation)
 - Explicit researcher confirmation ("yes, investigate this" or equivalent)
 - The idea should be substantive enough to warrant investigation — a vague interest doesn't justify the cost
 
 ## Process
 
 1. **Read context:**
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` for methods, interests, career stage
-   - `mcp__mcpvault__read_note` on `_meta/top-of-mind.md` for current priorities
+   - `mcp__mcpvault__read_note` on `reference/researcher-profile.md` for methods, interests, career stage
    - If the idea originated from an existing note, read it via `mcp__mcpvault__read_note`
 
 2. **Spawn sub-agents** (via NanoClaw agent teams) for parallel work:
@@ -37,7 +36,7 @@ A thorough exploration of a research idea, combining literature search, conceptu
 
 3. **Synthesize** — Combine sub-agent outputs into a single investigation note.
 
-4. **Write the investigation** — `mcp__mcpvault__write_note` to `ideas/YYYY-MM-DD-slug.md` (update existing note if one exists, or create new):
+4. **Write the investigation** — `mcp__mcpvault__write_note` to `feeds/inbox/YYYY-MM-DD-slug.md` (update existing note if one exists, or create new):
 
    Body sections:
    - `# [Title]: Research Investigation`
@@ -49,7 +48,7 @@ A thorough exploration of a research idea, combining literature search, conceptu
 
 5. **Update the idea's frontmatter** — `mcp__mcpvault__update_frontmatter` to change `status: spark` to `status: investigated` and add `investigated: 'YYYY-MM-DD'`.
 
-6. **Update the registry** — Move the idea from "spark" to "investigated" in `ideas/_registry.md`.
+6. **Update the index** — Move the idea from "spark" to "investigated" in `projects/_index.md`.
 
 7. **Report back** — Summarize key findings conversationally. Highlight the most promising framing and the immediate next step.
 

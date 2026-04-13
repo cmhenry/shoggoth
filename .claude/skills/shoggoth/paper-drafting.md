@@ -25,8 +25,7 @@ Do all of this before writing a single line of LaTeX.
 1. **Read the project's CLAUDE.md** in the project root. This tells you the project structure, conventions, and analytical goals.
 
 2. **Read the vault context** for this project:
-   - `mcp__mcpvault__read_note` on `_meta/researcher-profile.md` — who the researcher is
-   - `mcp__mcpvault__read_note` on `_meta/preferences.md` — writing style preferences
+   - `mcp__mcpvault__read_note` on `reference/researcher-profile.md` — who the researcher is
    - `mcp__mcpvault__read_note` on the project's `PROJECT.md` in `projects/<name>/` — current status and goals
 
 3. **Read existing manuscript sections** to match style, voice, and argument flow. Never write in isolation — your draft must connect to what comes before and after. Read at minimum the sections immediately adjacent to what you're drafting.

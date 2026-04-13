@@ -84,8 +84,7 @@ You are drafting a section of an academic paper. Follow the paper-drafting skill
 
 1. Read CLAUDE.md in this project root for project-specific instructions.
 2. Read vault context:
-   - Read ${VAULT_DIR}/_meta/researcher-profile.md
-   - Read ${VAULT_DIR}/_meta/preferences.md
+   - Read ${VAULT_DIR}/reference/researcher-profile.md
    - Read ${VAULT_DIR}/projects/${PROJECT_NAME}/PROJECT.md (if it exists)
 3. Read the existing manuscript to match style and argument flow.
    - If ${TEX_ROOT}/sections/ exists, read each section file there.
