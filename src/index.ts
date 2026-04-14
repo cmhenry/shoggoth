@@ -30,6 +30,7 @@ import {
   PROXY_BIND_HOST,
 } from './container-runtime.js';
 import {
+  clearSession,
   getAllChats,
   getAllRegisteredGroups,
   getAllSessions,
@@ -67,6 +68,7 @@ import {
 } from './sender-allowlist.js';
 import { startSessionCleanup } from './session-cleanup.js';
 import { startSchedulerLoop } from './task-scheduler.js';
+import { isSessionNotFoundError, resolveSessionId } from './sessions.js';
 import { Channel, NewMessage, RegisteredGroup } from './types.js';
 import { logger } from './logger.js';
 
@@ -463,7 +465,10 @@ async function runAgent(
   onOutput?: (output: ContainerOutput) => Promise<void>,
 ): Promise<'success' | 'error'> {
   const isMain = group.isMain === true;
-  const sessionId = sessions[group.folder];
+  const sessionId = resolveSessionId(group.folder);
+  if (!sessionId) {
+    delete sessions[group.folder];
+  }
 
   // Update tasks snapshot for container to read (filtered by group)
   const tasks = getAllTasks();
@@ -490,10 +495,13 @@ async function runAgent(
     new Set(Object.keys(registeredGroups)),
   );
 
-  // Wrap onOutput to track session ID from streamed results
+  // Wrap onOutput to track session ID from streamed results.
+  // Only persist the session ID when the container reports success —
+  // Claude Code echoes back the resumed ID even on resume failure, which
+  // would otherwise re-poison the DB with a stale pointer.
   const wrappedOnOutput = onOutput
     ? async (output: ContainerOutput) => {
-        if (output.newSessionId) {
+        if (output.newSessionId && output.status === 'success') {
           sessions[group.folder] = output.newSessionId;
           setSession(group.folder, output.newSessionId);
         }
@@ -519,7 +527,7 @@ async function runAgent(
       wrappedOnOutput,
     );
 
-    if (output.newSessionId) {
+    if (output.newSessionId && output.status === 'success') {
       sessions[group.folder] = output.newSessionId;
       setSession(group.folder, output.newSessionId);
     }
@@ -529,6 +537,14 @@ async function runAgent(
         { group: group.name, error: output.error },
         'Container agent error',
       );
+      if (isSessionNotFoundError(output.error)) {
+        logger.warn(
+          { group: group.name, sessionId },
+          'Clearing stale session pointer after "No conversation found" error',
+        );
+        clearSession(group.folder);
+        delete sessions[group.folder];
+      }
       return 'error';
     }
 
@@ -798,7 +814,6 @@ async function main(): Promise<void> {
   // Start subsystems (independently of connection handler)
   startSchedulerLoop({
     registeredGroups: () => registeredGroups,
-    getSessions: () => sessions,
     queue,
     onProcess: (groupJid, proc, containerName, groupFolder) =>
       queue.registerProcess(groupJid, proc, containerName, groupFolder),
