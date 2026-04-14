@@ -14,18 +14,10 @@ vi.mock('./config.js', () => ({
 const TEST_DATA_DIR = '/tmp/nanoclaw-sessions-test';
 
 import { _initTestDatabase, setSession, getSession } from './db.js';
-import { resolveSessionId, isSessionNotFoundError } from './sessions.js';
+import { resolveSessionId, isSessionNotFoundError, sessionJsonlPath } from './sessions.js';
 
 function jsonlPath(groupFolder: string, sessionId: string): string {
-  return path.join(
-    TEST_DATA_DIR,
-    'sessions',
-    groupFolder,
-    '.claude',
-    'projects',
-    '-workspace-group',
-    `${sessionId}.jsonl`,
-  );
+  return sessionJsonlPath(groupFolder, sessionId);
 }
 
 function createJsonl(groupFolder: string, sessionId: string): void {

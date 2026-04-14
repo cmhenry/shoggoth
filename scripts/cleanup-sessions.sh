@@ -69,6 +69,8 @@ is_active() {
 
 for group_dir in "$SESSIONS_DIR"/*/; do
   [ -d "$group_dir" ] || continue
+  # NOTE: path pattern must match sessionJsonlPath() in src/sessions.ts.
+  # The -workspace-group segment mirrors the container's /workspace/group cwd.
   jsonl_dir="$group_dir/.claude/projects/-workspace-group"
   [ -d "$jsonl_dir" ] || continue
 
