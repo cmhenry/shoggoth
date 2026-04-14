@@ -7,10 +7,10 @@ description: Create a Discord channel linked to a ~/projects/ directory. Use whe
 
 Creates a Discord text channel linked to a project directory. The host process handles Discord API calls and group registration — you just write an IPC task file.
 
-**Main-channel only.** Check:
+**Main-channel only.** Project-linked channels also have `/workspace/project` mounted now — detect main via a Shoggoth-specific file marker:
 
 ```bash
-test -d /workspace/project && echo "MAIN" || echo "NOT_MAIN"
+test -f /workspace/project/src/container-runner.ts && echo "MAIN" || echo "NOT_MAIN"
 ```
 
 If `NOT_MAIN`, respond:

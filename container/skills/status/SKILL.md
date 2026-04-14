@@ -7,10 +7,10 @@ description: Quick read-only health check — session context, workspace mounts,
 
 Generate a quick read-only status report of the current agent environment.
 
-**Main-channel check:** Only the main channel has `/workspace/project` mounted. Run:
+**Main-channel check:** Both the main channel and project-linked channels have `/workspace/project` mounted — the difference is *what* is there. Main mounts the Shoggoth codebase; project channels mount their own project. Detect main via a Shoggoth-specific file marker:
 
 ```bash
-test -d /workspace/project && echo "MAIN" || echo "NOT_MAIN"
+test -f /workspace/project/src/container-runner.ts && echo "MAIN" || echo "NOT_MAIN"
 ```
 
 If `NOT_MAIN`, respond with:

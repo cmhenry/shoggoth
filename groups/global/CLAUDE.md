@@ -117,6 +117,48 @@ Files you create are saved in `/workspace/group/`. Use this for notes, research,
 
 The vault is accessible at `/workspace/extra/vault/` and via MCP-Vault tools. Prefer MCP tools for vault operations — they handle frontmatter, linking, and registry updates correctly.
 
+## Project Channels
+
+Some channels are linked to a specific research project. Detect this on startup:
+
+```bash
+ls /workspace/project/ 2>/dev/null | head -5
+```
+
+If `/workspace/project/` exists and is **not** the Shoggoth codebase (no `src/container-runner.ts`), you are in a project-linked channel. The directory is the project's working tree, mounted read-write.
+
+Project-channel conventions:
+- Project name = group folder name with channel prefix stripped (`discord_platform-abm` → `platform-abm`, `project_gravity-misinfo` → `gravity-misinfo`).
+- `/workspace/project/` is the code source-of-truth. `projects/<name>/PROJECT.md` in the vault is the status / context source-of-truth. Coordinate the two; don't duplicate.
+- Check `/workspace/project/CLAUDE.md` on first access — it may contain project-specific guidance.
+- Read before you write. Respect the researcher's work-in-progress — don't reformat, mass-rename, or reorganize without being asked.
+- Never run destructive git operations (`push --force`, `reset --hard`, `branch -D`, `clean -fdx`) without explicit confirmation. Prefer new commits over amends.
+- Don't skip hooks (`--no-verify`) or bypass signing. If a pre-commit hook fails, fix the underlying issue and re-stage.
+- Keep changes minimal and focused. No speculative refactors, no "while I'm here" cleanup, no premature abstractions. A bug fix doesn't need surrounding tidy-ups.
+- Default to no comments. Only add a comment when the *why* is non-obvious.
+- Don't invent dependencies or write to files you haven't read first.
+
+## Vault Write Rules
+
+The Obsidian vault has four top-level zones with different write semantics. Follow these whenever you write a vault note, especially from project-linked channels that capture research artifacts.
+
+| Folder | Purpose | Write policy |
+|---|---|---|
+| `feeds/inbox/` | Captured research ideas. One note per idea at `feeds/inbox/YYYY-MM-DD-slug.md`. Frontmatter: `created`, `status` (starts as `spark`). `feeds/inbox/scratch.md` is a reverse-chronological list of backlinks to unarchived ideas. Triaged-out ideas move to `feeds/inbox/archive/`. | Agent writes via `/idea-capture`, `/idea-triage`. No subdirectories inside `feeds/inbox/` (except `archive/`). No template sections — prose only. |
+| `feeds/literature/` | Literature scans and reading pipeline. `weekly-YYYY-WNN.md` (ISO week) for scans, `queue.md` for the reading queue, `notes/<paper-key>.md` for per-paper notes. | Agent writes via `/literature-monitoring`, `/reading-list`. |
+| `projects/<slug>/` | Per-project canonical file `PROJECT.md` with `## Status`, `## Context`, `## Key Decisions`. Frontmatter: `phase`, `priority`, `last_updated`. `projects/_index.md` lists all projects. | Agent appends to `## Status` and `## Key Decisions` (newest first). **Never overwrite** the whole file or the `## Context` section — those are researcher-owned. Update `last_updated` via `update_frontmatter` on every Status change. |
+| `reference/` | Stable reference: `researcher-profile.md`, `collaborators.md`, `venues.md`, `templates/`, `shoggoth/`. | Researcher-owned. Agent reads on demand; writes only when explicitly asked. |
+| `workbench/daily/`, `workbench/reflections/` | Researcher's personal daily notes and weekly reflections. | Researcher-owned. Agent reads for continuity; **never writes**. |
+| `archive/` | Historical reference. | Don't surface in briefings or status reports unless explicitly asked. |
+
+Universal write rules:
+- Always use `mcp__mcpvault__*` tools for vault writes — raw filesystem writes bypass frontmatter validation and linking.
+- Use wikilinks `[[Note Name]]`, not `[markdown](links)` — Obsidian's graph, backlinks, and rename refactoring depend on them.
+- Dates `YYYY-MM-DD`, ISO weeks `YYYY-WNN`, slugs `kebab-case`, project names `kebab-case`.
+- No PII, no email addresses, no private contact details in any vault note.
+- Don't write template variables like `{{date}}` literally — MCP doesn't expand them.
+- `.obsidian/` is sandboxed — you cannot read or write app config.
+
 ## Memory
 
 The `conversations/` folder contains searchable history of past conversations. Use this to recall context from previous sessions.

@@ -7,10 +7,10 @@ description: Show what this NanoClaw instance can do — installed skills, avail
 
 Generate a structured read-only report of what this NanoClaw instance can do.
 
-**Main-channel check:** Only the main channel has `/workspace/project` mounted. Run:
+**Main-channel check:** Both the main channel and project-linked channels have `/workspace/project` mounted — the difference is *what* is there. Main mounts the Shoggoth codebase; project channels mount their own project. Detect main via a Shoggoth-specific file marker:
 
 ```bash
-test -d /workspace/project && echo "MAIN" || echo "NOT_MAIN"
+test -f /workspace/project/src/container-runner.ts && echo "MAIN" || echo "NOT_MAIN"
 ```
 
 If `NOT_MAIN`, respond with:
