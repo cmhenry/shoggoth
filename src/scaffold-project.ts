@@ -152,11 +152,11 @@ export async function scaffoldProject(
       }
 
       if (!isGitRepo) {
-        execFileSync('git', ['clone', repoUrl, targetPath], {
+        execFileSync('gh', ['repo', 'clone', repoFullName, targetPath], {
           stdio: 'pipe',
           timeout: 60000,
         });
-        logger.info({ repoUrl, targetPath }, 'Repo cloned');
+        logger.info({ repoFullName, targetPath }, 'Repo cloned');
       }
 
       result.github = {
